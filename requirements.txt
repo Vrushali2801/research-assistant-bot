@@ -1,0 +1,5 @@
+groq
+ddgs
+requests
+beautifulsoup4
+python-dotenv
