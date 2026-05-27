@@ -1,219 +1,186 @@
 # Personal Research Assistant Agent
 
-Autonomous research agent that searches the web, reads articles, and produces structured markdown reports from a single prompt.
+Autonomous research agent that searches the web, reads articles, and produces structured markdown reports from a single prompt. Built with LangGraph + Groq.
 
 ---
 
 ## Quick Demo
 
-### Terminal Output Example
-
 ```bash
-$ python research_agent.py "electric vehicles market trends 2025"
+$ uv run python research_agent.py "impact of AI on software development"
 
-Researching: electric vehicles market trends 2025
+Researching: impact of AI on software development
 ============================================================
-  -> web_search({'query': 'electric vehicles market trends 2025', 'max_results': 5})
-  -> read_page({'url': 'https://example.com/ev-trends'})
-  -> read_page({'url': 'https://example.com/ev-sales'})
-  -> read_page({'url': 'https://example.com/ev-future'})
-  -> write_report({'filename': 'ev_market_trends', 'content': '# Electric Vehicles Market Trends 2025\n\n## Overview\n...'})
+  -> web_search({'max_results': 5, 'query': 'impact of AI on software development'})
+  -> read_page({'max_chars': 3000, 'url': 'https://www.future-processing.com/blog/the-impact-of-ai-on-software-development-opportunitie...'})
+  -> read_page({'max_chars': 3000, 'url': 'https://www.mckinsey.com/capabilities/tech-and-ai/our-insights/the-ai-revolution-in-software...'})
+  -> read_page({'max_chars': 3000, 'url': 'https://www.pace.edu/news/ai-software-development'})
+  -> read_page({'max_chars': 3000, 'url': 'https://www.morganstanley.com/insights/articles/ai-software-development-industry-growth'})
+  -> write_report({'content': '# Impact of AI on Software Development\n...'})
 
-Report saved to: reports/ev_market_trends.md
+Report saved to: reports\ai_in_software_development.md
 
 Agent finished.
 ```
 
-### Generated Report Example
+### Generated report (`reports/ai_in_software_development.md`)
 
-**reports/ev_market_trends.md**
 ```markdown
-# Electric Vehicles Market Trends 2025
+# Impact of AI on Software Development
 
-## Overview
-The global EV market continues rapid expansion with significant growth in both 
-battery technology and charging infrastructure.
+The impact of AI on software development is a topic of great interest and debate.
+According to recent articles, AI is transforming the software development process,
+making it more efficient, and enhancing productivity.
 
-## Key Findings
-- Global EV sales reached 14M units in 2024
-- Battery costs dropped 20% year-over-year
-- Charging networks expanded by 35% globally
-- China maintains 60% market share
+## Opportunities
 
-## Market Segments
-### Luxury EVs
-- Strong demand from Tesla, BMW i, Mercedes-Benz EQS
+AI-powered code generators can automate the creation of code snippets, modules, and
+even entire applications, significantly speeding up development. AI can also assist
+in testing and quality assurance by analyzing codebases for patterns associated with
+defects or failures.
 
-### Mass-Market EVs  
-- BYD leading in affordable models
-- New competitors from traditional automakers
+## Challenges
 
-## Technology Advances
-- Solid-state batteries entering production phase
-- 800V fast charging becoming standard
-- Range improvements reaching 500+ miles
+AI systems are limited to the knowledge and training data they have received, and
+they lack the creativity and critical thinking abilities of humans.
+
+## Conclusion
+
+AI will augment and assist developers rather than replace them, making the process
+more efficient and enhancing productivity.
 
 ## Sources
-- https://example.com/ev-trends
-- https://example.com/ev-sales
-- https://example.com/ev-future
+
+* https://www.future-processing.com/blog/the-impact-of-ai-on-software-development-opportunities-and-challenges/
+* https://www.pace.edu/news/ai-software-development
 ```
 
 ---
 
 ## How It Works
 
+The agent runs as a LangGraph `StateGraph`. At each step, the model either calls a tool or decides it has enough information to write the final report.
+
 ```
-┌─────────────────────────────────────┐
-│   User enters research topic        │
-└────────────────┬────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────┐
-│  Groq AI Agent receives task         │
-│  with tool definitions              │
-└────────────────┬────────────────────┘
-                 │
-                 ▼
-        ┌─────────────────┐
-        │  Iteration Loop │
-        └────────┬────────┘
-                 │
-    ┌────────────┼────────────┐
-    │            │            │
-    ▼            ▼            ▼
-┌────────┐  ┌────────┐  ┌──────────┐
-│ Search │  │  Read  │  │  Write   │
-│ Web    │  │Article │  │  Report  │
-└────────┘  └────────┘  └──────────┘
-    │            │            │
-    └────────────┼────────────┘
-                 │
-                 ▼
-        ┌─────────────────┐
-        │  All done?      │
-        │  (finish_reason │
-        │   == "stop")    │
-        └────┬────────┬───┘
-             │        │
-           YES       NO
-             │        │
-             ▼        └──► Back to loop
-        ┌──────────┐
-        │  Report  │
-        │  Saved!  │
-        └──────────┘
+User enters topic
+       │
+       ▼
+  ┌─────────────────────────────────┐
+  │         LangGraph Agent         │
+  │                                 │
+  │  ┌─────────┐    ┌────────────┐  │
+  │  │  Agent  │───▶│    Tools   │  │
+  │  │  Node   │◀───│    Node    │  │
+  │  └────┬────┘    └────────────┘  │
+  │       │ stop                    │
+  └───────┼─────────────────────────┘
+          │
+          ▼
+    Report saved to reports/
 ```
+
+**The 3 tools:**
+
+| Tool | What it does |
+|---|---|
+| `web_search` | Searches DuckDuckGo, returns 5 URLs + snippets |
+| `read_page` | Fetches a URL, strips HTML, returns clean text |
+| `write_report` | Writes the final report to `reports/*.md` |
+
 ---
 
-## Setup (5 Minutes)
+## Setup
 
-### 1. Clone the Repository
+### 1. Clone the repository
+
 ```bash
-git clone https://github.com/Vrushali2801/web-research-bot.git
-cd web-research-bot
+git clone https://github.com/Vrushali2801/research-assistant-bot.git
+cd research-assistant-bot
 ```
 
-### 2. Install Dependencies
+### 2. Install dependencies
+
 ```bash
 uv sync
 ```
 
-### 3. Get Your Groq API Key
-1. Go to [console.groq.com](https://console.groq.com)
-2. Sign up (free tier available)
-3. Generate an API key
-4. Create a `.env` file in the project root:
+### 3. Configure API keys
 
-```bash
-GROQ_API_KEY=your_api_key_here
+Create a `.env` file in the project root:
+
+```
+GROQ_API_KEY=your_groq_api_key_here
+
+# Optional — LangSmith tracing (set to false to disable)
+LANGSMITH_TRACING=false
+LANGSMITH_PROJECT=research-assistant
+LANGSMITH_API_KEY=your_langsmith_api_key_here
 ```
 
-### 4. Run the Agent
+Get your **Groq API key** (free) at [console.groq.com](https://console.groq.com).  
+Get your **LangSmith API key** (optional, free) at [smith.langchain.com](https://smith.langchain.com).
+
+### 4. Run the agent
+
 ```bash
-python research_agent.py "your research topic here"
+uv run python research_agent.py "your research topic here"
 ```
 
 **Examples:**
 ```bash
-python research_agent.py "quantum computing breakthroughs"
-python research_agent.py "sustainable fashion trends"
-python research_agent.py "AI in healthcare 2025"
+uv run python research_agent.py "quantum computing breakthroughs 2025"
+uv run python research_agent.py "sustainable fashion trends"
+uv run python research_agent.py "AI in healthcare"
 ```
 
-Reports are automatically saved to the `reports/` folder as markdown files.
-
----
-
-## What Gets Generated
-
-✅ **Comprehensive Research Report** with:
-- Clear title and introduction
-- Key findings with statistics
-- Organized sections and subsections
-- Direct citations with source URLs
-- Well-structured markdown formatting
-
-The agent:
-1. Searches for 5 relevant articles using DuckDuckGo
-2. Reads the 3-4 most promising sources
-3. Synthesizes findings into a structured report
-4. Saves to `reports/` directory with markdown formatting
+Reports are saved to the `reports/` folder as markdown files.
 
 ---
 
 ## Tech Stack
 
-| Component | Technology | Why |
-|-----------|-----------|-----|
-| **AI Model** | Groq API (Llama 3.3-70B) | Fast, cost-effective, open-source model |
-| **Web Search** | DuckDuckGo Search API | Privacy-focused, free, no API key required |
-| **Web Scraping** | BeautifulSoup + requests | Parse HTML, extract clean text content |
-| **Language** | Python 3.8+ | Simple, readable, great libraries |
-| **Package Manager** | uv | Fast Python package manager (replaces pip) |
-| **Environment** | python-dotenv | Secure API key management |
-
----
-
-## Features
-
-- 🔍 **Autonomous Search** - Finds relevant articles without manual curation
-- 📖 **Smart Reading** - Extracts content and removes noise (ads, navigation, etc.)
-- 📝 **Structured Reports** - Organized markdown with citations and sources
-- 🔄 **Agentic Loop** - AI decides when to search, read, and write
-- ⚡ **Fast** - Uses Groq's fast inference for quick responses
-- 🆓 **Free** - Uses free/low-cost APIs (Groq free tier, DuckDuckGo free)
+| Component | Technology |
+|---|---|
+| **Agent Framework** | LangGraph 1.x (StateGraph + ReAct) |
+| **LLM** | Groq — `llama-3.3-70b-versatile` |
+| **LLM Client** | langchain-groq |
+| **Web Search** | DuckDuckGo (`ddgs`) — no API key required |
+| **Web Scraping** | requests + BeautifulSoup4 |
+| **Observability** | LangSmith (optional) |
+| **Package Manager** | uv |
+| **Config** | python-dotenv |
 
 ---
 
 ## Project Structure
 
 ```
-web-research-bot/
-├── main.py                 # Entry point
-├── research_agent.py       # Main agent logic with Groq API integration
-├── tools.py               # Tool implementations (search, read, write)
-├── pyproject.toml         # Project metadata and dependencies (uv)
-├── uv.lock                # Locked dependencies (uv)
-├── .env                   # API keys (create this)
-├── README.md             # This file
-└── reports/              # Generated research reports (auto-created)
-    ├── electric_vehicles.md
-    ├── quantum_computing.md
-    └── ...
+Personal-Research-Assistant-Agent/
+├── research_agent.py   # LangGraph agent — model, tools, streaming loop
+├── tools.py            # Tool implementations (web_search, read_page, write_report)
+├── pyproject.toml      # Project metadata and dependencies
+├── uv.lock             # Locked dependency versions
+├── .env                # API keys (create this, never commit)
+├── README.md           # This file
+└── reports/            # Generated reports (auto-created)
 ```
+
+---
+
+## Features
+
+- **Autonomous loop** — LangGraph StateGraph decides when to search, read, or write
+- **Graceful error handling** — skips pages that 403/timeout, retries malformed tool calls
+- **Structured reports** — title, findings, citations, sources all in markdown
+- **Optional tracing** — full LangSmith trace of every tool call and LLM step
+- **Free to run** — Groq free tier + DuckDuckGo, no paid APIs required
+
+---
 
 ## Future Improvements
 
 - [ ] Add support for academic papers (arXiv, Google Scholar)
-- [ ] Generate citations in different formats (APA, Chicago, MLA)
-- [ ] Add web UI for easier interaction
-- [ ] Support for multi-language research
-- [ ] Integration with LangGraph for more complex workflows
+- [ ] Generate citations in APA / MLA format
+- [ ] Web UI for easier interaction
+- [ ] Multi-language research support
 - [ ] Fact-checking with cross-references
-- [ ] Image and data visualization support
-
----
-
-
-**Happy researching! 🚀**

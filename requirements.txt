@@ -1,5 +1,9 @@
-groq
-ddgs
-requests
-beautifulsoup4
-python-dotenv
+beautifulsoup4>=4.14.3
+ddgs>=9.14.4
+groq>=0.37.1
+langchain-core>=1.4.0
+langchain-groq>=1.1.2
+langgraph>=1.2.2
+langsmith==0.3.45
+python-dotenv>=1.2.2
+requests>=2.34.2

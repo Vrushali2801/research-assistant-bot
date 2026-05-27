@@ -1,15 +1,17 @@
 [project]
 name = "personal-research-assistant-agent"
 version = "0.1.0"
-description = "Add your description here"
+description = "Autonomous research agent that searches the web, reads sources, and writes structured markdown reports"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.10"
 dependencies = [
-    "anthropic>=0.104.1",
     "beautifulsoup4>=4.14.3",
     "ddgs>=9.14.4",
-    "duckduckgo-search>=8.1.1",
-    "groq>=1.2.0",
+    "groq>=0.37.1",
+    "langchain-core>=1.4.0",
+    "langchain-groq>=1.1.2",
+    "langgraph>=1.2.2",
+    "langsmith==0.3.45",
     "python-dotenv>=1.2.2",
     "requests>=2.34.2",
 ]

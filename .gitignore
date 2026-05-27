@@ -11,3 +11,12 @@ wheels/
 
 # Documentation (local reference only)
 FLOW_DIAGRAM.md
+
+# Environment variables — never commit API keys
+.env
+
+# Generated reports
+reports/
+
+# Claude Code session data
+.claude/
