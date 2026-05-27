@@ -112,7 +112,7 @@ Create a `.env` file in the project root:
 GROQ_API_KEY=your_groq_api_key_here
 
 # Optional — LangSmith tracing (set to false to disable)
-LANGSMITH_TRACING=false
+LANGSMITH_TRACING=true
 LANGSMITH_PROJECT=research-assistant
 LANGSMITH_API_KEY=your_langsmith_api_key_here
 ```
