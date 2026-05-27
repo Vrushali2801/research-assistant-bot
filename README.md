@@ -104,22 +104,19 @@ battery technology and charging infrastructure.
         │  Saved!  │
         └──────────┘
 ```
-
-**See [FLOW_DIAGRAM.md](FLOW_DIAGRAM.md) for detailed architecture**
-
 ---
 
 ## Setup (5 Minutes)
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/research-agent.git
-cd research-agent
+git clone https://github.com/Vrushali2801/web-research-bot.git
+cd web-research-bot
 ```
 
 ### 2. Install Dependencies
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
 ### 3. Get Your Groq API Key
@@ -173,6 +170,7 @@ The agent:
 | **Web Search** | DuckDuckGo Search API | Privacy-focused, free, no API key required |
 | **Web Scraping** | BeautifulSoup + requests | Parse HTML, extract clean text content |
 | **Language** | Python 3.8+ | Simple, readable, great libraries |
+| **Package Manager** | uv | Fast Python package manager (replaces pip) |
 | **Environment** | python-dotenv | Secure API key management |
 
 ---
@@ -191,89 +189,19 @@ The agent:
 ## Project Structure
 
 ```
-research-agent/
+web-research-bot/
 ├── main.py                 # Entry point
 ├── research_agent.py       # Main agent logic with Groq API integration
 ├── tools.py               # Tool implementations (search, read, write)
-├── requirements.txt       # Python dependencies
+├── pyproject.toml         # Project metadata and dependencies (uv)
+├── uv.lock                # Locked dependencies (uv)
 ├── .env                   # API keys (create this)
 ├── README.md             # This file
-├── FLOW_DIAGRAM.md       # Detailed architecture diagram
 └── reports/              # Generated research reports (auto-created)
     ├── electric_vehicles.md
     ├── quantum_computing.md
     └── ...
 ```
-
----
-
-## How the Agent Works (Simple Version)
-
-### Tool 1: web_search()
-Searches DuckDuckGo for articles matching your topic. Returns URLs, titles, and snippets.
-
-### Tool 2: read_page()
-Downloads a webpage, removes junk (ads, navigation), and extracts clean text content.
-
-### Tool 3: write_report()
-Synthesizes all gathered information into a well-structured markdown report and saves it.
-
-### The Loop
-1. AI reads your topic: _"Research electric vehicles"_
-2. AI decides: _"I should search for articles"_ → calls `web_search()`
-3. AI reads results: _"These 3 articles look good"_ → calls `read_page()` 3 times
-4. AI synthesizes: _"Now I'll write the report"_ → calls `write_report()`
-5. AI finishes: _"Report saved, I'm done!"_ → Loop ends
-
----
-
-## Customization
-
-### Change the Model
-Edit `research_agent.py` line 125:
-```python
-model="llama-3.3-70b-versatile",  # Change to another Groq model
-```
-
-Available Groq models: [console.groq.com](https://console.groq.com)
-
-### Adjust Search Results
-Edit `tools.py` to change default results:
-```python
-def web_search(query: str, max_results: int = 5) -> list[dict]:
-    # Change 5 to 10 for more results
-```
-
-### Customize Report Format
-Edit the `SYSTEM_PROMPT` in `research_agent.py` to specify report style:
-```python
-SYSTEM_PROMPT = """You are a research assistant that writes reports in:
-- Academic tone
-- Bullet-point format
-- Include criticisms and limitations
-- (customize as needed)
-"""
-```
-
----
-
-## Troubleshooting
-
-**"Error: No API key provided"**
-- Create a `.env` file with `GROQ_API_KEY=your_key`
-- Make sure you have a valid Groq API key from [console.groq.com](https://console.groq.com)
-
-**"No module named 'groq'"**
-- Run `pip install -r requirements.txt`
-- Check you're using Python 3.8+
-
-**"requests.exceptions.Timeout"**
-- Some websites are slow or blocking scraping. The agent will try different sources.
-
-**Empty report**
-- The topic might be too obscure. Try more common topics like "AI trends 2025"
-
----
 
 ## Future Improvements
 
@@ -287,18 +215,5 @@ SYSTEM_PROMPT = """You are a research assistant that writes reports in:
 
 ---
 
-## License
-
-MIT License - feel free to use and modify
-
----
-
-## Questions?
-
-- Check [FLOW_DIAGRAM.md](FLOW_DIAGRAM.md) for detailed architecture
-- Open an issue for bugs or feature requests
-- See comments in code for implementation details
-
----
 
 **Happy researching! 🚀**
